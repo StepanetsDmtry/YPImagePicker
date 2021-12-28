@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Photos
+import PhotosUI
 
 extension YPLibraryVC {
     var isLimitExceeded: Bool { return selection.count >= YPConfig.library.maxNumberOfItems }
@@ -16,6 +18,9 @@ extension YPLibraryVC {
         v.collectionView.dataSource = self
         v.collectionView.delegate = self
         v.collectionView.register(YPLibraryViewCell.self, forCellWithReuseIdentifier: "YPLibraryViewCell")
+        v.collectionView.register(YPGalleryRestirctionHeaderView.self,
+                                  forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                  withReuseIdentifier: "headerView")
         
         // Long press on cell to enable multiple selection
         let longPressGR = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(longPressGR:)))
@@ -109,15 +114,75 @@ extension YPLibraryVC {
     func checkLimit() {
         v.maxNumberWarningView.isHidden = !isLimitExceeded || multipleSelectionEnabled == false
     }
+    
+    @available(iOS 14, *)
+    private func showRestrictionManageAlert() {
+        let alert = UIAlertController(title: nil,
+                                      message: nil,
+                                      preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet)
+        let selectAnother = UIAlertAction(title: "Select More Photos...", style: .default) { _ in
+            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
+        }
+        
+        let changeSettings = UIAlertAction(title: "Change Settings", style: .default) { _ in
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!,
+                                      options: [:],
+                                      completionHandler: nil)
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alert.addAction(selectAnother)
+        alert.addAction(changeSettings)
+        alert.addAction(cancel)
+        self.present(alert, animated: true)
+    }
 }
 
 extension YPLibraryVC: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return mediaManager.fetchResult.count
     }
+    
+    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard
+            #available(iOS 14, *),
+            kind == UICollectionView.elementKindSectionHeader,
+            PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
+        else {
+            return UICollectionReusableView()
+        }
+        
+        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader,
+                                                                         withReuseIdentifier: "headerView",
+                                                                         for: [0, 0]) as! YPGalleryRestirctionHeaderView
+        headerView.onManageTap = {[weak self] in
+            self?.showRestrictionManageAlert()
+        }
+        
+        return headerView
+    }
 }
 
 extension YPLibraryVC: UICollectionViewDelegate {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        guard
+            #available(iOS 14, *),
+            PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
+        else {
+            return .zero
+        }
+        
+        // Get the view for the first header
+        let indexPath = IndexPath(row: 0, section: section)
+        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)
+        
+        // Use this view to calculate the optimal size based on the collection view's width
+        return headerView.systemLayoutSizeFitting(CGSize(width: collectionView.frame.width,
+                                                         height: UIView.layoutFittingExpandedSize.height),
+                                                  withHorizontalFittingPriority: .required, // Width is fixed
+                                                  verticalFittingPriority: .fittingSizeLevel) // Height can be as large as needed
+    }
     
     public func collectionView(_ collectionView: UICollectionView,
                                cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

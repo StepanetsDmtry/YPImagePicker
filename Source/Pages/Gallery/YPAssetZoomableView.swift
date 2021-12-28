@@ -225,7 +225,7 @@ final class YPAssetZoomableView: UIScrollView {
         delegate = self
         alwaysBounceHorizontal = true
         alwaysBounceVertical = true
-        isScrollEnabled = true
+        isScrollEnabled = YPConfig.isPreviewZoomEnabled
     }
     
     override func layoutSubviews() {
@@ -237,6 +237,7 @@ final class YPAssetZoomableView: UIScrollView {
 // MARK: UIScrollViewDelegate Protocol
 extension YPAssetZoomableView: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        guard YPConfig.isPreviewZoomEnabled else { return nil }
         return isVideoMode ? videoView : photoImageView
     }
     
