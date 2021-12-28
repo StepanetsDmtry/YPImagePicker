@@ -106,6 +106,11 @@ class YPAssetViewContainer: UIView {
     }
     
     public func refreshSquareCropButton() {
+        guard YPConfig.isPreviewZoomEnabled else {
+            squareCropButton.isHidden = true
+            return
+        }
+        
         if onlySquare {
             squareCropButton.isHidden = true
         } else {
