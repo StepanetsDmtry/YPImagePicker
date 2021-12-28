@@ -17,7 +17,7 @@ protocol YPAssetZoomableViewDelegate: AnyObject {
 }
 
 final class YPAssetZoomableView: UIScrollView {
-    public weak var zoomableViewDelegate: YPAssetZoomableViewDelegate?
+    public weak var myDelegate: YPAssetZoomableViewDelegate?
     public var cropAreaDidChange = {}
     public var isVideoMode = false
     public var photoImageView = UIImageView()
@@ -92,7 +92,7 @@ final class YPAssetZoomableView: UIScrollView {
 
             strongSelf.videoView.loadVideo(playerItem)
             strongSelf.videoView.play()
-            strongSelf.zoomableViewDelegate?.ypAssetZoomableViewDidLayoutSubviews(strongSelf)
+            strongSelf.myDelegate?.ypAssetZoomableViewDidLayoutSubviews(strongSelf)
         }
     }
     
@@ -143,10 +143,10 @@ final class YPAssetZoomableView: UIScrollView {
         photoImageView.removeFromSuperview()
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)!
         backgroundColor = YPConfig.colors.assetViewBackgroundColor
+        frame.size = CGSize.zero
         clipsToBounds = true
         photoImageView.frame = CGRect(origin: CGPoint.zero, size: CGSize.zero)
         videoView.frame = CGRect(origin: CGPoint.zero, size: CGSize.zero)
@@ -157,17 +157,12 @@ final class YPAssetZoomableView: UIScrollView {
         delegate = self
         alwaysBounceHorizontal = true
         alwaysBounceVertical = true
-        isScrollEnabled = true
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)!
-        fatalError("Only code layout.")
+        isScrollEnabled = YPConfig.isPreviewZoomEnabled
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        zoomableViewDelegate?.ypAssetZoomableViewDidLayoutSubviews(self)
+        myDelegate?.ypAssetZoomableViewDidLayoutSubviews(self)
     }
 }
 
@@ -254,11 +249,12 @@ fileprivate extension YPAssetZoomableView {
 // MARK: UIScrollViewDelegate Protocol
 extension YPAssetZoomableView: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        guard YPConfig.isPreviewZoomEnabled else { return nil }
         return isVideoMode ? videoView : photoImageView
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        zoomableViewDelegate?.ypAssetZoomableViewScrollViewDidZoom()
+        myDelegate?.ypAssetZoomableViewScrollViewDidZoom()
         
         centerAssetView()
     }
@@ -271,7 +267,7 @@ extension YPAssetZoomableView: UIScrollViewDelegate {
             self.fitImage(true, animated: true)
         }
         
-        zoomableViewDelegate?.ypAssetZoomableViewScrollViewDidEndZooming()
+        myDelegate?.ypAssetZoomableViewScrollViewDidEndZooming()
         cropAreaDidChange()
     }
     

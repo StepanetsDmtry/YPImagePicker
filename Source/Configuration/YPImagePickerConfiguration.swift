@@ -59,6 +59,9 @@ public struct YPImagePickerConfiguration {
     /// Set this to true if you want to force the camera output to be a squared image. Defaults to true
     public var onlySquareImagesFromCamera = true
     
+    /// Set this to true if you want to zoom in/out on preview. Also this propery control visibility of zoom button.
+    public var isPreviewZoomEnabled = true
+    
     /// Enables selecting the front camera by default, useful for avatars. Defaults to false
     public var usesFrontCamera = false
     
