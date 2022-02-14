@@ -12,10 +12,13 @@ import MobileCoreServices
 extension AVFileType {
     /// Fetch and extension for a file from UTI string
     var fileExtension: String {
-        if let ext = UTTypeCopyPreferredTagWithClass(self as CFString,
-													 kUTTagClassFilenameExtension)?.takeRetainedValue() {
-            return ext as String
+        let avFileTypeRawValue = self.rawValue
+        let prefferedTag = UTTypeCopyPreferredTagWithClass(avFileTypeRawValue as CFString, kUTTagClassFilenameExtension)
+        
+        if let fileExt = prefferedTag?.takeRetainedValue() {
+            return fileExt as String
+        } else {
+            return "none"
         }
-        return "None"
     }
 }
