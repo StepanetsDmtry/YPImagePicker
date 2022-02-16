@@ -135,12 +135,31 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
         }
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        DispatchQueue.main.async {
+            self.v.assetZoomableView.fitImage(true, animated: true)
+            self.v.collectionView.collectionViewLayout.invalidateLayout()
+        }
+    }
+    
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         pausePlayer()
         NotificationCenter.default.removeObserver(self)
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
+    }
+    
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate { _ in
+            DispatchQueue.main.async {
+                self.v.assetZoomableView.fitImage(true, animated: true)
+                self.v.collectionView.collectionViewLayout.invalidateLayout()
+            }
+        }
     }
     
     // MARK: - Crop control

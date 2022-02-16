@@ -37,6 +37,17 @@ final class YPAssetZoomableView: UIScrollView {
     /// - Parameters:
     ///   - fit: If true - zoom to show squared. If false - show full.
     public func fitImage(_ fit: Bool, animated isAnimated: Bool = false) {
+        if currentAsset?.mediaType == .video {
+            if let image = videoView.previewImageView.image {
+                setAssetFrame(for: videoView, with: image)
+            }
+        }
+        else {
+            if let image = photoImageView.image {
+                setAssetFrame(for: photoImageView, with: image)
+            }
+        }
+        centerAssetView()
         squaredZoomScale = calculateSquaredZoomScale()
         if fit {
             setZoomScale(squaredZoomScale, animated: isAnimated)
@@ -142,7 +153,7 @@ final class YPAssetZoomableView: UIScrollView {
         self.zoomScale = 1
         
         // Calculating and setting the image view frame depending on screenWidth
-        let screenWidth = YPImagePickerConfiguration.screenWidth
+        let screenWidth = self.frame.height //YPImagePickerConfiguration.screenWidth
         
         let w = image.size.width
         let h = image.size.height

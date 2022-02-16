@@ -32,6 +32,11 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
         view = v
     }
     
+    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        reload()
+    }
+    
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         delegate?.pagerScrollViewDidScroll(scrollView)
     }
@@ -49,6 +54,18 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
     }
     
     func reload() {
+        //Clean up
+        v.header.menuItems.forEach {
+            $0.removeFromSuperview()
+        }
+        v.header.menuItems.removeAll()
+        
+        controllers.forEach {
+            $0.willMove(toParent: nil)
+            $0.view.removeFromSuperview()
+            $0.removeFromParent()
+        }
+        
         let screenWidth = YPImagePickerConfiguration.screenWidth
         let viewWidth: CGFloat = screenWidth
         for (index, c) in controllers.enumerated() {
