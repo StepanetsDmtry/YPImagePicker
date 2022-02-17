@@ -153,30 +153,28 @@ final class YPAssetZoomableView: UIScrollView {
         self.zoomScale = 1
         
         // Calculating and setting the image view frame depending on screenWidth
-        let screenWidth = self.frame.height //YPImagePickerConfiguration.screenWidth
+        let screenWidth = self.frame.width //YPImagePickerConfiguration.screenWidth
         
         let w = image.size.width
         let h = image.size.height
 
         var aspectRatio: CGFloat = 1
         var zoomScale: CGFloat = 1
-
-        if w > h { // Landscape
-            aspectRatio = h / w
-            view.frame.size.width = screenWidth
-            view.frame.size.height = screenWidth * aspectRatio
-        } else if h > w { // Portrait
-            aspectRatio = w / h
-            view.frame.size.width = screenWidth * aspectRatio
-            view.frame.size.height = screenWidth
-            
-            if let minWidth = minWidth {
-                let k = minWidth / screenWidth
-                zoomScale = (h / w) * k
+        
+        if UIDevice.current.orientation.isPortrait {
+            if w > h { // Landscape image
+                aspectRatio = frame.width / w
+                view.frame.size.width = self.frame.width
+                view.frame.size.height = h * aspectRatio
+            } else { // Portrait image or Square
+                aspectRatio = frame.height / h
+                view.frame.size.width = w * aspectRatio
+                view.frame.size.height = self.frame.height
             }
-        } else { // Square
-            view.frame.size.width = screenWidth
-            view.frame.size.height = screenWidth
+        } else {
+            aspectRatio = frame.height / h
+            view.frame.size.width = w * aspectRatio
+            view.frame.size.height = self.frame.height
         }
         
         // Centering image view
