@@ -31,6 +31,11 @@ final class YPAssetZoomableView: UIScrollView {
     public var assetImageView: UIImageView {
         return isVideoMode ? videoView.previewImageView : photoImageView
     }
+    
+    public func clean() {
+        self.currentAsset = nil
+        self.photoImageView.image = nil
+    }
 
     /// Set zoom scale to fit the image to square or show the full image
     //

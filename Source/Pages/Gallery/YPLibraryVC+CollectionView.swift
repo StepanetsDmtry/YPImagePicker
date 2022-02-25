@@ -144,18 +144,23 @@ extension YPLibraryVC: UICollectionViewDataSource {
         return mediaManager.fetchResult.count
     }
     
+    public func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard
             #available(iOS 14, *),
             kind == UICollectionView.elementKindSectionHeader,
             PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
         else {
+            print("[Return Dfault]")
             return UICollectionReusableView()
         }
         
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader,
                                                                          withReuseIdentifier: "headerView",
-                                                                         for: [0, 0]) as! YPGalleryRestirctionHeaderView
+                                                                         for: indexPath) as! YPGalleryRestirctionHeaderView
         headerView.onManageTap = {[weak self] in
             self?.showRestrictionManageAlert()
         }
@@ -173,15 +178,9 @@ extension YPLibraryVC: UICollectionViewDelegate {
             return .zero
         }
         
-        // Get the view for the first header
-        let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)
-        
-        // Use this view to calculate the optimal size based on the collection view's width
-        return headerView.systemLayoutSizeFitting(CGSize(width: collectionView.frame.width,
-                                                         height: UIView.layoutFittingExpandedSize.height),
-                                                  withHorizontalFittingPriority: .required, // Width is fixed
-                                                  verticalFittingPriority: .fittingSizeLevel) // Height can be as large as needed
+        let headerView = YPGalleryRestirctionHeaderView()
+        headerView.widthAnchor.constraint(equalToConstant: v.collectionView.frame.width).isActive = true
+        return headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
     
     public func collectionView(_ collectionView: UICollectionView,

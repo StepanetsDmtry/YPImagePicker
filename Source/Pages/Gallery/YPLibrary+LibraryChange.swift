@@ -43,6 +43,15 @@ extension YPLibraryVC: PHPhotoLibraryChangeObserver {
                     })
                 }
                 self.mediaManager.resetCachedAssets()
+                self.refreshMediaRequest()
+                
+                if !self.mediaManager.hasResultItems {
+                    self.selection.removeAll()
+                    self.v.assetZoomableView.clean()
+                    self.v.assetZoomableView.videoView.deallocate()
+                    self.v.assetZoomableView.videoView.previewImageView.image = nil
+                    self.delegate?.libraryViewFinishedLoading()
+                }
             }
         }
     }
