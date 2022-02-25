@@ -43,7 +43,6 @@ extension YPLibraryVC: PHPhotoLibraryChangeObserver {
                     })
                 }
                 self.mediaManager.resetCachedAssets()
-                self.refreshMediaRequest()
                 
                 if !self.mediaManager.hasResultItems {
                     self.selection.removeAll()
@@ -52,6 +51,7 @@ extension YPLibraryVC: PHPhotoLibraryChangeObserver {
                     self.v.assetZoomableView.videoView.previewImageView.image = nil
                     self.delegate?.libraryViewFinishedLoading()
                 }
+                self.refreshMediaRequest()
             }
         }
     }
