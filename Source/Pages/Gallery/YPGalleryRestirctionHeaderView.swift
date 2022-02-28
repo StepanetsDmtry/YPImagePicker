@@ -43,7 +43,7 @@ private extension YPGalleryRestirctionHeaderView {
         restrictionImageView.translatesAutoresizingMaskIntoConstraints = false
         restrictionImageView.image = YPIcons().restriction
         restrictionImageView.backgroundColor = .white
-        restrictionImageView.tintColor = .red
+        restrictionImageView.tintColor = .darkGray
         restrictionImageView.contentMode = .scaleAspectFit
         restrictionImageView.layer.cornerRadius = 10
         restrictionImageView.clipsToBounds = true
@@ -71,7 +71,7 @@ private extension YPGalleryRestirctionHeaderView {
         subtitleLabel.textColor = .black
         subtitleLabel.numberOfLines = 0
         subtitleLabel.lineBreakMode = .byWordWrapping
-        subtitleLabel.text = "You have limited app from accessing all of your photos."
+        subtitleLabel.text = "You've given SquareOffs access to a select number of photos or videos."
         addSubview(subtitleLabel)
         
         subtitleLabel.topAnchor.constraint(equalTo: restrictionImageView.bottomAnchor, constant: 8).isActive = true
