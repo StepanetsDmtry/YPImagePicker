@@ -22,8 +22,14 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
     internal var latestImageTapped = ""
     internal let panGestureHelper = PanGestureHelper()
 
-    // MARK: - Init
     
+    // MARK: - Deinit
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        PHPhotoLibrary.shared().unregisterChangeObserver(self)
+    }
+    
+    // MARK: - Init
     public required init(items: [YPMediaItem]?) {
         super.init(nibName: nil, bundle: nil)
         title = YPConfig.wordings.libraryTitle
@@ -295,6 +301,7 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
         }
         
         if mediaManager.hasResultItems {
+            selection.removeAll()
             changeAsset(mediaManager.fetchResult[0])
             v.collectionView.reloadData()
             v.collectionView.selectItem(at: IndexPath(row: 0, section: 0),
@@ -623,14 +630,7 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
     }
     
     // MARK: - Player
-    
     func pausePlayer() {
         v.assetZoomableView.videoView.pause()
-    }
-    
-    // MARK: - Deinit
-    
-    deinit {
-        PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
 }
